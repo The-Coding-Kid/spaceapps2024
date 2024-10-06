@@ -103,17 +103,18 @@ export default function Home() {
       Generate_Star(x, y, z);
     }
 
-    function Generate_exoplanet(a, b) {
+    function Generate_exoplanet(a) {
       const geometry = new THREE.SphereGeometry(2, 32, 32);
       const material = new THREE.MeshBasicMaterial({
         color: 0xffffff,
       });
       const exoplanet = new THREE.Mesh(geometry, material);
       scene.add(exoplanet);
+      exoplanet.position.set(a,0,0);
       return exoplanet;
     }
 
-    const exoplanet = Generate_exoplanet(5, 3); // Example semi-major and semi-minor axes
+    const exoplanet = Generate_exoplanet(5); // Example semi-major (and eccentricity)
 
     const composer = new EffectComposer(renderer);
     const renderPass = new RenderPass(scene, camera);
