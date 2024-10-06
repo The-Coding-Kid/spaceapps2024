@@ -5,6 +5,9 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import SearchBar from "./components/SearchBar";
 import Shader from "./components/Shader";
+import QuickActions from "./components/QuickActions";
+import Navbar from "./components/Navbar";
+import Title from "./components/Title";
 
 export default function Home() {
   useEffect(() => {
@@ -87,6 +90,9 @@ export default function Home() {
 
   return (
     <div>
+      <Title />
+      <Navbar />
+      <QuickActions />
       <SearchBar />
     </div>
   );

@@ -32,7 +32,7 @@ const SearchBar = () => {
               {planets.map((planet, index) => (
                 <li
                   key={index}
-                  className={`flex items-center gap-[12px] cursor-pointer flex-row py-[20px] px-[20px] border border-[rgba(255,255,255,0.5)] border-x-0 ${
+                  className={`flex hover:bg-[rgba(255,255,255,0.1)] transition-all duration-300 items-center gap-[12px] cursor-pointer flex-row py-[20px] px-[20px] border border-[rgba(255,255,255,0.5)] border-x-0 ${
                     index !== 0 ? "border-t-0" : ""
                   }`}
                 >

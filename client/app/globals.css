@@ -45,3 +45,8 @@ body {
   /* background blur */
   backdrop-filter: blur(10px);
 }
+
+.glowbtn:hover {
+  border: 1px solid #fff;
+  box-shadow: 0px 4px 61.4px 4px rgba(255, 255, 255, 0.3);
+}
