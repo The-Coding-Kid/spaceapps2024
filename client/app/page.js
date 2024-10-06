@@ -48,6 +48,8 @@ export default function Home() {
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.25;
+    // if zoom is above a limit turn it off
+    controls.maxDistance = 100;
     controls.enableZoom = true;
 
     // Dynamic vertex shader
