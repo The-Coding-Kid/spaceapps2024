@@ -15,14 +15,14 @@ import Title from "./components/Title";
 const RA = [];
 const azimuth = [];
 
-for (let i = 0; i < 75; i++) {
+for (let i = 0; i < 100; i++) {
   RA.push(Math.PI * (Math.random() - 0.5));
 }
-for (let i = 0; i < 75; i++) {
+for (let i = 0; i < 100; i++) {
   azimuth.push(2 * Math.PI * Math.random());
 }
 
-const R = 500;
+const R = 1000;
 
 export default function Home() {
   useEffect(() => {
@@ -87,7 +87,7 @@ export default function Home() {
     camera.lookAt(0, 0, 0); // Point the camera at the center of the scene
 
     function Generate_Star(x, y, z) {
-      const geometry = new THREE.SphereGeometry(2 * Math.random(), 32, 32);
+      const geometry = new THREE.SphereGeometry(3 * Math.random(), 32, 32);
       const material = new THREE.MeshBasicMaterial({
         color: 0xffffff,
       });
@@ -96,7 +96,7 @@ export default function Home() {
       scene.add(star);
     }
 
-    for (let i = 0; i < 75; i++) {
+    for (let i = 0; i < 100; i++) {
       const x = R * Math.cos(RA[i]) * Math.cos(azimuth[i]);
       const y = R * Math.cos(RA[i]) * Math.sin(azimuth[i]);
       const z = R * Math.sin(RA[i]);
