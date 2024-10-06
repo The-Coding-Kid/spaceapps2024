@@ -82,7 +82,9 @@ export default function Home() {
     sun.position.set(0, 0, 0); // Center the sun
     scene.add(sun);
 
-    camera.position.z = 10; // Adjusted camera position
+    // Set the camera to a top-down view
+    camera.position.set(0, 50, 0); // Position the camera above the scene
+    camera.lookAt(0, 0, 0); // Point the camera at the center of the scene
 
     function Generate_Star(x, y, z) {
       const geometry = new THREE.SphereGeometry(2 * Math.random(), 32, 32);
@@ -146,10 +148,14 @@ export default function Home() {
 
       // Update exoplanet position
       var T_orb = 2; // Example orbital period
-      exoplanet.position.x = 25 * Math.cos(((2*Math.PI)/T_orb) * t);
-      exoplanet.position.z = 15 * Math.sin(((2*Math.PI)/T_orb) * t);
+      var e = 0.5
+      var a = 25
+      var b = a * (Math.sqrt(1-(Math.pow(e,2))))
+      var M = ((2*Math.PI)/T_orb)*t;
+      exoplanet.position.x = a * Math.cos(M);
+      exoplanet.position.z = b * Math.sin(M);
       exoplanet.position.y = 0;
-      sun.position.set(Math.sqrt(Math.pow(25,2)-Math.pow(15,2)), 0, 0); 
+      sun.position.set(e*a, 0, 0); 
 
       // Update trail
       trailPositions.copyWithin(3, 0, (maxTrailLength - 1) * 3);
