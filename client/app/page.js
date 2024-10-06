@@ -13,15 +13,42 @@ import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 import Title from "./components/Title";
 
+const N = 400;
+const rocky_colors = [0x8B4513, 0xD2B48C, 0xA9A9A9, 0xB22222, 0xFF6347, 0xADD8E6, 0x4682B4, 0xA0522D, 0xC0C0C0, 0xCD5C5C];
+
 const RA = [];
 const azimuth = [];
 let abs_mag = [];
 let distances = [];
-const N = 300;
+
+function color_from_gases(...args) {
+  return 0x085e53;
+}
 
 //import these from backend
+const pl_name = "rizzler"
+const has_atm = false; //check if plantet is in fulldata csv (otherwise use partialdata csv)
 const R_pl = 1;
 const R_st = 0.1;
+const gases = ["H", "He", "O", "NO4", "NH4"];
+
+
+
+let COLOR = color_from_gases(gases);
+
+if (has_atm) {
+  //planet main color
+  COLOR = color_from_gases(gases);
+} else {
+  if (R_pl < 2.2) {
+    //terrestrial planet
+    COLOR = rocky_colors[10*Math.floor(Math.random())]
+  } else {
+    //gas giant
+    COLOR = rocky_colors[10*Math.floor(Math.random())]
+  }
+}
+
 
 for (let i = 0; i < N; i++) {
   abs_mag[i] = 6 * (Math.random() - 0.5);
@@ -64,7 +91,7 @@ export default function Home() {
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.25;
-    controls.maxDistance = 150;
+    controls.maxDistance = 100;
     controls.enableZoom = true;
 
     const vertexShader = Shader.vertexShader;
@@ -78,7 +105,7 @@ export default function Home() {
       },
     };
 
-    const sunGeometry = new THREE.SphereGeometry(R_st*215, 32, 32);
+    const sunGeometry = new THREE.SphereGeometry(R_st * 215, 32, 32);
     const sunMaterial = new THREE.ShaderMaterial({
       vertexShader,
       fragmentShader,
@@ -106,7 +133,7 @@ export default function Home() {
     const starOutlines = [];
 
     function Generate_Star(x, y, z, B) {
-      const geometry = new THREE.SphereGeometry(60 * Math.sqrt(B), 32, 32); // Increase hitbox size
+      const geometry = new THREE.SphereGeometry(10 * Math.sqrt(B), 32, 32); // Increase hitbox size
       const material = new THREE.MeshBasicMaterial({
         color: 0xffffff,
       });
@@ -134,10 +161,10 @@ export default function Home() {
       Generate_Star(x, y, z, brightness[i]);
     }
 
-    function Generate_exoplanet(a) {
+    function Generate_exoplanet(a,clr) {
       const geometry = new THREE.SphereGeometry(R_pl, 32, 32);
       const material = new THREE.MeshBasicMaterial({
-        color: 0x085e53,
+        color: clr,
       });
       const exoplanet = new THREE.Mesh(geometry, material);
       scene.add(exoplanet);
@@ -145,7 +172,7 @@ export default function Home() {
       return exoplanet;
     }
 
-    const exoplanet = Generate_exoplanet(25);
+    const exoplanet = Generate_exoplanet(25,COLOR);
 
     const composer = new EffectComposer(renderer);
     const renderPass = new RenderPass(scene, camera);
@@ -164,7 +191,7 @@ export default function Home() {
     const trail = new THREE.Line(trailGeometry, trailMaterial);
     scene.add(trail);
 
-    const maxTrailLength = 100;
+    const maxTrailLength = 200;
     const trailPositions = new Float32Array(maxTrailLength * 3);
     trailGeometry.setAttribute(
       "position",
@@ -235,7 +262,7 @@ export default function Home() {
       sunMaterial.uniforms.time.value += 0.01;
 
       var T_orb = 2;
-      var e = 0.85;
+      var e = 0.4;
       var a = 100;
       var b = a * Math.sqrt(1 - Math.pow(e, 2));
       var M = ((2 * Math.PI) / T_orb) * t;
@@ -255,7 +282,7 @@ export default function Home() {
       );
       trailGeometry.attributes.position.needsUpdate = true;
 
-      t += 0.1 / k;
+      t += 0.25 / k;
 
       controls.update();
 
