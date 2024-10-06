@@ -15,7 +15,7 @@ const QuickActionItem = ({ src, alt, description }) => {
         initial={{ opacity: 0, x: 20 }}
         animate={{ opacity: isHovered ? 1 : 0, x: isHovered ? 0 : 20 }}
         transition={{ duration: 0.3 }}
-        className="ml-2 bgblur bg-[rgba(255,255,255,0.1)] rounded-md px-2 py-1 text-white text-sm"
+        className="ml-2 bgblur bg-[rgba(255,255,255,0.1)] rounded-md px-2 cursor-pointer py-1 z-40 text-[rbga(255,255,255,0.5)] text-sm"
       >
         {description}
       </motion.div>
