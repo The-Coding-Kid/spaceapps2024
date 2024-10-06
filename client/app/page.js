@@ -7,19 +7,22 @@ import SearchBar from "./components/SearchBar";
 import Shader from "./components/Shader";
 import QuickActions from "./components/QuickActions";
 import Navbar from "./components/Navbar";
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import Title from "./components/Title";
 
 const RA = [];
 const azimuth = [];
 
-for (let i = 0; i < 30; i++) {
+for (let i = 0; i < 75; i++) {
   RA.push(Math.PI * (Math.random() - 0.5));
 }
-for (let i = 0; i < 30; i++) {
+for (let i = 0; i < 75; i++) {
   azimuth.push(2 * Math.PI * Math.random());
 }
 
-const R = 50;
+const R = 500;
 
 
 
@@ -86,23 +89,32 @@ export default function Home() {
 
 
     function Generate_Star(x, y, z) {
-      const geometry = new THREE.SphereGeometry(2, 32, 32);
+      const geometry = new THREE.SphereGeometry(2*Math.random(), 32, 32);
       const material = new THREE.MeshBasicMaterial({ 
-        color: 0xffff00,
-        bright
+        color: 0xffffff,
        });
       const star = new THREE.Mesh(geometry, material);
       star.position.set(x, y, z);
       scene.add(star);
     }
 
-    for (let i = 0; i < 30; i++) {
+    for (let i = 0; i < 75; i++) {
       const x = R * Math.cos(RA[i]) * Math.cos(azimuth[i]);
       const y = R * Math.cos(RA[i]) * Math.sin(azimuth[i]);
       const z = R * Math.sin(RA[i]);
       Generate_Star(x, y, z);
     }
-
+    const composer = new EffectComposer(renderer);
+    const renderPass = new RenderPass(scene, camera);
+    composer.addPass(renderPass);
+    
+    const bloomPass = new UnrealBloomPass(
+      new THREE.Vector2(window.innerWidth, window.innerHeight),
+      3, // strength
+      0.4, // radius
+      0.85 // threshold
+    );
+    composer.addPass(bloomPass);
     // Animation loop
     const animate = function () {
       requestAnimationFrame(animate);
@@ -111,7 +123,9 @@ export default function Home() {
       sunMaterial.uniforms.time.value += 0.01; // Update time uniform
 
       controls.update();
-      renderer.render(scene, camera);
+      
+      // renderer.render(scene, camera);
+      composer.render();
     };
 
     animate();
