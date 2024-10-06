@@ -22,6 +22,11 @@ for (let i = 0; i < 100; i++) {
   azimuth.push(2 * Math.PI * Math.random());
 }
 
+//zoom testing
+controls = new THREE.OrbitControls( camera, renderer.domElement );
+controls.minDistance = 5;
+controls.maxDistance = 100;
+
 const R = 1000;
 
 export default function Home() {
