@@ -9,6 +9,20 @@ import QuickActions from "./components/QuickActions";
 import Navbar from "./components/Navbar";
 import Title from "./components/Title";
 
+const RA = [];
+const azimuth = [];
+
+for (let i = 0; i < 30; i++) {
+  RA.push(Math.PI * (Math.random() - 0.5));
+}
+for (let i = 0; i < 30; i++) {
+  azimuth.push(2 * Math.PI * Math.random());
+}
+
+const R = 50;
+
+
+
 export default function Home() {
   useEffect(() => {
     // Set up the scene, camera, and renderer
@@ -68,6 +82,26 @@ export default function Home() {
     scene.add(sun);
 
     camera.position.z = 10; // Adjusted camera position
+
+
+
+    function Generate_Star(x, y, z) {
+      const geometry = new THREE.SphereGeometry(2, 32, 32);
+      const material = new THREE.MeshBasicMaterial({ 
+        color: 0xffff00,
+        bright
+       });
+      const star = new THREE.Mesh(geometry, material);
+      star.position.set(x, y, z);
+      scene.add(star);
+    }
+
+    for (let i = 0; i < 30; i++) {
+      const x = R * Math.cos(RA[i]) * Math.cos(azimuth[i]);
+      const y = R * Math.cos(RA[i]) * Math.sin(azimuth[i]);
+      const z = R * Math.sin(RA[i]);
+      Generate_Star(x, y, z);
+    }
 
     // Animation loop
     const animate = function () {
