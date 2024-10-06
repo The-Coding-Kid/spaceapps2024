@@ -104,9 +104,9 @@ export default function Home() {
     }
 
     function Generate_exoplanet(a) {
-      const geometry = new THREE.SphereGeometry(2, 32, 32);
+      const geometry = new THREE.SphereGeometry(1, 32, 32);
       const material = new THREE.MeshBasicMaterial({
-        color: 0xffffff,
+        color: 0x085e53,
       });
       const exoplanet = new THREE.Mesh(geometry, material);
       scene.add(exoplanet);
@@ -114,7 +114,7 @@ export default function Home() {
       return exoplanet;
     }
 
-    const exoplanet = Generate_exoplanet(5); // Example semi-major (and eccentricity)
+    const exoplanet = Generate_exoplanet(25); // Example semi-major (and eccentricity)
 
     const composer = new EffectComposer(renderer);
     const renderPass = new RenderPass(scene, camera);
@@ -141,6 +141,7 @@ export default function Home() {
 
     // Animation loop
     let t = 0;
+    sun.position.set(e*a, 0, 0); 
     const animate = function () {
       requestAnimationFrame(animate);
 
@@ -156,7 +157,6 @@ export default function Home() {
       exoplanet.position.x = a * Math.cos(M);
       exoplanet.position.z = b * Math.sin(M);
       exoplanet.position.y = 0;
-      sun.position.set(e*a, 0, 0); 
 
       // Update trail
       trailPositions.copyWithin(3, 0, (maxTrailLength - 1) * 3);
