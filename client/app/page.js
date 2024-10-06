@@ -24,8 +24,6 @@ for (let i = 0; i < 75; i++) {
 
 const R = 500;
 
-
-
 export default function Home() {
   useEffect(() => {
     // Set up the scene, camera, and renderer
@@ -86,13 +84,11 @@ export default function Home() {
 
     camera.position.z = 10; // Adjusted camera position
 
-
-
     function Generate_Star(x, y, z) {
-      const geometry = new THREE.SphereGeometry(2*Math.random(), 32, 32);
-      const material = new THREE.MeshBasicMaterial({ 
+      const geometry = new THREE.SphereGeometry(2 * Math.random(), 32, 32);
+      const material = new THREE.MeshBasicMaterial({
         color: 0xffffff,
-       });
+      });
       const star = new THREE.Mesh(geometry, material);
       star.position.set(x, y, z);
       scene.add(star);
@@ -104,10 +100,23 @@ export default function Home() {
       const z = R * Math.sin(RA[i]);
       Generate_Star(x, y, z);
     }
+
+    function Generate_exoplanet(a, b) {
+      const geometry = new THREE.SphereGeometry(2, 32, 32);
+      const material = new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+      });
+      const exoplanet = new THREE.Mesh(geometry, material);
+      scene.add(exoplanet);
+      return exoplanet;
+    }
+
+    const exoplanet = Generate_exoplanet(5, 3); // Example semi-major and semi-minor axes
+
     const composer = new EffectComposer(renderer);
     const renderPass = new RenderPass(scene, camera);
     composer.addPass(renderPass);
-    
+
     const bloomPass = new UnrealBloomPass(
       new THREE.Vector2(window.innerWidth, window.innerHeight),
       3, // strength
@@ -115,16 +124,42 @@ export default function Home() {
       0.85 // threshold
     );
     composer.addPass(bloomPass);
+
+    // Create trail geometry
+    const trailGeometry = new THREE.BufferGeometry();
+    const trailMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
+    const trail = new THREE.Line(trailGeometry, trailMaterial);
+    scene.add(trail);
+
+    const maxTrailLength = 100; // Maximum number of points in the trail
+    const trailPositions = new Float32Array(maxTrailLength * 3); // 3 coordinates per point
+    trailGeometry.setAttribute('position', new THREE.BufferAttribute(trailPositions, 3));
+    let trailIndex = 0;
+
     // Animation loop
+    let t = 0;
     const animate = function () {
       requestAnimationFrame(animate);
 
       sun.rotation.y += 0.01; // Rotate the sun for some animation
       sunMaterial.uniforms.time.value += 0.01; // Update time uniform
 
+      // Update exoplanet position
+      var T_orb = 2; // Example orbital period
+      exoplanet.position.x = 25 * Math.cos(((2*Math.PI)/T_orb) * t);
+      exoplanet.position.z = 15 * Math.sin(((2*Math.PI)/T_orb) * t);
+      exoplanet.position.y = 0;
+      sun.position.set(Math.sqrt(Math.pow(25,2)-Math.pow(15,2)), 0, 0); 
+
+      // Update trail
+      trailPositions.copyWithin(3, 0, (maxTrailLength - 1) * 3);
+      trailPositions.set([exoplanet.position.x, exoplanet.position.y, exoplanet.position.z], 0);
+      trailGeometry.attributes.position.needsUpdate = true;
+
+      t += 0.01; // Increment time
+
       controls.update();
-      
-      // renderer.render(scene, camera);
+
       composer.render();
     };
 
