@@ -141,7 +141,6 @@ export default function Home() {
 
     // Animation loop
     let t = 0;
-    sun.position.set(e*a, 0, 0); 
     const animate = function () {
       requestAnimationFrame(animate);
 
@@ -154,6 +153,7 @@ export default function Home() {
       var a = 25
       var b = a * (Math.sqrt(1-(Math.pow(e,2))))
       var M = ((2*Math.PI)/T_orb)*t;
+      sun.position.set(e*a, 0, 0); 
       exoplanet.position.x = a * Math.cos(M);
       exoplanet.position.z = b * Math.sin(M);
       exoplanet.position.y = 0;
