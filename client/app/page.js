@@ -22,11 +22,6 @@ for (let i = 0; i < 100; i++) {
   azimuth.push(2 * Math.PI * Math.random());
 }
 
-//zoom testing
-controls = new THREE.OrbitControls( camera, renderer.domElement );
-controls.minDistance = 5;
-controls.maxDistance = 100;
-
 const R = 1000;
 
 export default function Home() {
@@ -137,7 +132,7 @@ export default function Home() {
 
     // Create trail geometry
     const trailGeometry = new THREE.BufferGeometry();
-    const trailMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
+    const trailMaterial = new THREE.LineBasicMaterial({ color: 0x929292 });
     const trail = new THREE.Line(trailGeometry, trailMaterial);
     scene.add(trail);
 
