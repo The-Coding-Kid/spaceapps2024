@@ -146,6 +146,8 @@ export default function Home() {
 
     // Animation loop
     let t = 0;
+    let k = 0;
+    
     const animate = function () {
       requestAnimationFrame(animate);
 
@@ -158,6 +160,7 @@ export default function Home() {
       var a = 25
       var b = a * (Math.sqrt(1-(Math.pow(e,2))))
       var M = ((2*Math.PI)/T_orb)*t;
+      k = Math.sqrt(Math.pow(exoplanet.position.x,2)+Math.pow(exoplanet.position.z,2))
       sun.position.set(e*a, 0, 0); 
       exoplanet.position.x = a * Math.cos(M);
       exoplanet.position.z = b * Math.sin(M);
@@ -168,7 +171,7 @@ export default function Home() {
       trailPositions.set([exoplanet.position.x, exoplanet.position.y, exoplanet.position.z], 0);
       trailGeometry.attributes.position.needsUpdate = true;
 
-      t += 0.01; // Increment time
+      t += 0.25/k; // Increment time
 
       controls.update();
 
