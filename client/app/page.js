@@ -89,6 +89,7 @@ const R = 600;
 export default function Home() {
   const [selectedStars, setSelectedStars] = useState([]);
   const [lockOnPlanet, setLockOnPlanet] = useState(false);
+  const [surfaceView, setSurfaceView] = useState(false);
 
   useEffect(() => {
     const scene = new THREE.Scene();
@@ -166,7 +167,7 @@ export default function Home() {
     const hitboxes = [];
 
     function Generate_Star(x, y, z, B) {
-      const geometry = new THREE.SphereGeometry(10 * Math.sqrt(B), 32, 32); // Increase hitbox size
+      const geometry = new THREE.SphereGeometry(60 * Math.sqrt(B), 32, 32); // Increase hitbox size
       const material = new THREE.MeshBasicMaterial({
         color: 0xffffff,
       });
@@ -218,6 +219,15 @@ export default function Home() {
     }
 
     const exoplanet = Generate_exoplanet(25, COLOR);
+
+    // Create terrain geometry and material
+    const terrainGeometry = new THREE.PlaneGeometry(100, 100, 32, 32);
+    const terrainMaterial = new THREE.MeshBasicMaterial({ color: 0x228B22, wireframe: true });
+    const terrain = new THREE.Mesh(terrainGeometry, terrainMaterial);
+    terrain.position.set(100, 0, 0); // Adjust height as needed
+    terrain.rotation.x = -Math.PI / 2; // Rotate to make it horizontal
+    terrain.visible = false; // Initially hidden
+    scene.add(terrain);
 
     const composer = new EffectComposer(renderer);
     const renderPass = new RenderPass(scene, camera);
@@ -376,8 +386,17 @@ export default function Home() {
 
             );
             camera.lookAt(exoplanet.position);
+          } else if (surfaceView) {
+            camera.position.set(
+              exoplanet.position.x,
+              exoplanet.position.y + 1.5, // Adjust height as needed
+              exoplanet.position.z
+            );
+            camera.lookAt(exoplanet.position.x, exoplanet.position.y, exoplanet.position.z + 1);
+            terrain.visible = true; // Show terrain
           } else {
             controls.update();
+            terrain.visible = false; // Hide terrain
           }
 
           composer.render();
@@ -391,7 +410,7 @@ export default function Home() {
       document.body.removeChild(renderer.domElement);
       window.removeEventListener("click", onStarClick);
     };
-  }, [lockOnPlanet]);
+  }, [lockOnPlanet, surfaceView]);
 
   return (
     <div>
@@ -399,9 +418,9 @@ export default function Home() {
       <Navbar setLockOnPlanet={setLockOnPlanet} lockOnPlanet={lockOnPlanet} />
       <QuickActions />
       <SearchBar />
-      {/* <button onClick={() => setLockOnPlanet(!lockOnPlanet)}>
-        {/* {lockOnPlanet ? "Unlock View" : "Lock on Planet"}
-      </button> */}
+      <button onClick={() => setSurfaceView(!surfaceView)}>
+        {surfaceView ? "Exit Surface View" : "View Surface"}
+      </button>
     </div>
   );
 }
