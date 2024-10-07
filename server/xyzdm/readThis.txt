@@ -1,0 +1,7 @@
+xyzd.bin files are formatted as follows:
+np.float32 values, the order being x y z d (distance = magnitude(x,y,z)) m (apparent magnitude from the exoplanet system)
+x,y,z,d are all centred on the exoplanet system, the name given in the filename.
+
+there are also id.bin files - onedrive, where each number (np.uint32) is either a gaia dr3 identifier (if you want a star name
+                                                                                                       call it Gaia DR3 + id)
+or the id is a hyg id (all id numbers are much smaller than Gaia DR3, by orders of magnitude)
