@@ -222,9 +222,11 @@ export default function Home() {
 
     // Create terrain geometry and material
     const terrainGeometry = new THREE.PlaneGeometry(100, 100, 32, 32);
-    const terrainMaterial = new THREE.MeshBasicMaterial({ color: 0x228B22, wireframe: true });
+    const textureLoader = new THREE.TextureLoader();
+    const rockyTexture = textureLoader.load('client\public\rockytexture.png'); // Replace with the path to your rocky texture
+    const terrainMaterial = new THREE.MeshBasicMaterial({ map: rockyTexture });
     const terrain = new THREE.Mesh(terrainGeometry, terrainMaterial);
-    terrain.position.set(100, 0, 0); // Adjust height as needed
+    terrain.position.set(100, 0, 0); // Adjust position as needed
     terrain.rotation.x = -Math.PI / 2; // Rotate to make it horizontal
     terrain.visible = false; // Initially hidden
     scene.add(terrain);
@@ -388,11 +390,11 @@ export default function Home() {
             camera.lookAt(exoplanet.position);
           } else if (surfaceView) {
             camera.position.set(
-              exoplanet.position.x,
-              exoplanet.position.y + 1.5, // Adjust height as needed
-              exoplanet.position.z
+              terrain.position.x,
+              terrain.position.y + 10, // Adjust height as needed
+              terrain.position.z
             );
-            camera.lookAt(exoplanet.position.x, exoplanet.position.y, exoplanet.position.z + 1);
+            camera.lookAt(terrain.position.x, terrain.position.y, terrain.position.z);
             terrain.visible = true; // Show terrain
           } else {
             controls.update();
