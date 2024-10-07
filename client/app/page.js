@@ -14,43 +14,29 @@ import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPa
 import Title from "./components/Title";
 import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry";
+import Rocky from "./components/Rocky";
 const N = 400;
 const rocky_colors = [
   0x8b4513, 0xd2b48c, 0xa9a9a9, 0xb22222, 0xff6347, 0xadd8e6, 0x4682b4,
   0xa0522d, 0xc0c0c0, 0xcd5c5c,
 ];
 
-const RA = [];
-const azimuth = [];
+function getStarValues() {
+  fetch(`127.0.0.1:5000/`)
+    .then(data => data.json())
+  
+}
+
+//R*x/distance, R*y/distance, R*z/distance
+const X = [];
+const Y = [];
+const Z = [];
 let abs_mag = [];
 let distances = [];
 
 function color_from_gases() {
   return 0x085e53;
 }
-
-
-
-/*
-const listener = new THREE.AudioListener();
-camera.add(listener);
-
-const sound = new THREE.Audio(listener);
-const audioLoader = new THREE.AudioLoader();
-
-// Load the ambient music file
-audioLoader.load('file:///Users/ibrahim/Downloads/The%20sweet,%20sour,%20salty,%20and%20savory%20sigma.mp3', function(buffer) {
-    sound.setBuffer(buffer);
-    sound.setLoop(true);
-    sound.setVolume(0.5); // Set volume as needed
-    sound.play(); // Play the music
-});
-
-*/
-
-
-
-
 
 //NOTE: check if other planets are in the same system
 //import these from backend
@@ -76,16 +62,19 @@ if (has_atm) {
 }
 
 for (let i = 0; i < N; i++) {
-  abs_mag[i] = 6 * (Math.random() - 0.5);
+  X.push(200*(Math.random()-0.5));
 }
 for (let i = 0; i < N; i++) {
-  RA.push(Math.PI * (Math.random() - 0.5));
+  Y.push(200*(Math.random()-0.5));
 }
 for (let i = 0; i < N; i++) {
-  azimuth.push(2 * Math.PI * Math.random());
+  Z.push(200*(Math.random()-0.5));
 }
 for (let i = 0; i < N; i++) {
-  distances.push(10 + 390 * Math.random());
+  abs_mag.push(6*(Math.random()-0.5));
+}
+for (let i = 0; i < N; i++) {
+  distances.push(Math.sqrt(Math.pow(X[i],2)+Math.pow(Y[i],2)+Math.pow(Z[i],2)));
 }
 
 //apparent magnitudes
@@ -98,7 +87,7 @@ for (let i = 0; i < N; i++) {
 const R = 600;
 
 export default function Home() {
-  const [, setSelectedStars] = useState([]);
+  const [selectedStars, setSelectedStars] = useState([]);
   const [lockOnPlanet, setLockOnPlanet] = useState(false);
 
   useEffect(() => {
@@ -110,24 +99,18 @@ export default function Home() {
       1000
     );
 
-
-
     const listener = new THREE.AudioListener();
     camera.add(listener);
     const sound = new THREE.Audio(listener);
     const audioLoader = new THREE.AudioLoader();
 
-// Load the ambient music file
+    // Load the ambient music file
     audioLoader.load('The sweet, sour, salty, and savory sigma.mp3', function(buffer) {
       sound.setBuffer(buffer);
       sound.setLoop(true);
       sound.setVolume(0.5); // Set volume as needed
       sound.play(); // Play the music
     });
-
-
-
-
 
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
@@ -142,6 +125,9 @@ export default function Home() {
 
     const vertexShader = Shader.vertexShader;
     const fragmentShader = Shader.fragmentShader;
+
+    const rockyVertexShader = Rocky.vertexShader;
+    const rockyFragmentShader = Rocky.fragmentShader;
 
     const starData = {
       temperatureEstimate: {
@@ -177,39 +163,52 @@ export default function Home() {
 
     const stars = [];
     const starOutlines = [];
+    const hitboxes = [];
 
     function Generate_Star(x, y, z, B) {
-      const geometry = new THREE.SphereGeometry(20 * Math.sqrt(B), 32, 32); // Increase hitbox size
+      const geometry = new THREE.SphereGeometry(60 * Math.sqrt(B), 32, 32); // Increase hitbox size
       const material = new THREE.MeshBasicMaterial({
         color: 0xffffff,
       });
       const star = new THREE.Mesh(geometry, material);
       star.position.set(x, y, z);
       scene.add(star);
-      stars.push(star);
 
-      const outlineGeometry = new THREE.SphereGeometry(6, 32, 32);
+      const geometry2 = new THREE.SphereGeometry(20, 32, 32);
+      const material2 = new THREE.MeshBasicMaterial({
+        color: 0x03ffff,
+        transparent: true,
+        opacity: 0 // Adjust the opacity value as needed
+      });
+      const hitbox = new THREE.Mesh(geometry2, material2);
+      hitbox.position.set(x, y, z);
+      scene.add(hitbox);
+      hitboxes.push(hitbox);
+
+      const outlineGeometry = new THREE.SphereGeometry(10, 32, 32);
       const outlineMaterial = new THREE.MeshBasicMaterial({
-        color: 0xff0000,
+        color: 0xffaa00,
         side: THREE.BackSide,
       });
       const outline = new THREE.Mesh(outlineGeometry, outlineMaterial);
       outline.position.set(x, y, z);
       outline.visible = false;
-      // scene.add(outline);
+      scene.add(outline);
       starOutlines.push(outline);
     }
 
     for (let i = 0; i < N; i++) {
-      const x = R * Math.cos(RA[i]) * Math.cos(azimuth[i]);
-      const y = R * Math.cos(RA[i]) * Math.sin(azimuth[i]);
-      const z = R * Math.sin(RA[i]);
+      const x = R * X[i]/distances[i];
+      const y = R * Y[i]/distances[i];
+      const z = R * Z[i]/distances[i];
       Generate_Star(x, y, z, brightness[i]);
     }
 
     function Generate_exoplanet(a, clr) {
       const geometry = new THREE.SphereGeometry(R_pl, 32, 32);
-      const material = new THREE.MeshBasicMaterial({
+      const material = new THREE.ShaderMaterial({
+        vertexShader,
+      fragmentShader,
         color: clr,
       });
       const exoplanet = new THREE.Mesh(geometry, material);
@@ -254,12 +253,6 @@ export default function Home() {
       const line = new THREE.Line(geometry, lineMaterial);
       scene.add(line);
       constellationLines.push(line);
-
-      // Remove the previous line if it exists
-      if (constellationLines.length > 1) {
-        const oldLine = constellationLines.shift();
-        scene.remove(oldLine);
-      }
     }
 
     function onStarClick(event) {
@@ -268,14 +261,14 @@ export default function Home() {
       mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
       const raycaster = new THREE.Raycaster();
-      raycaster.params.Points.threshold = 5; // Increase hitbox size
-      raycaster.params.Points.threshold = 10; // Increase hitbox size
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(hitboxes);
 
-      const intersects = raycaster.intersectObjects(stars);
       if (intersects.length > 0) {
-        const selectedStar = intersects[0].object;
+        const selectedHitbox = intersects[0].object;
+        console.log("Star clicked:", selectedHitbox); // Debugging log
         setSelectedStars((prevSelectedStars) => {
-          const newSelectedStars = [...prevSelectedStars, selectedStar];
+          const newSelectedStars = [...prevSelectedStars, selectedHitbox];
           if (newSelectedStars.length === 2) {
             drawLine(
               newSelectedStars[0].position,
@@ -287,20 +280,15 @@ export default function Home() {
         });
 
         // Outline the selected star
-        const index = stars.indexOf(selectedStar);
+        const index = hitboxes.indexOf(selectedHitbox);
         if (index !== -1) {
           starOutlines[index].visible = true;
           setTimeout(() => {
             starOutlines[index].visible = false;
           }, 1000); // Hide outline after 1 second
         }
-      }
-
-      const lineIntersects = raycaster.intersectObjects(constellationLines);
-      if (lineIntersects.length > 0) {
-        const selectedLine = lineIntersects[0].object;
-        scene.remove(selectedLine);
-        constellationLines.splice(constellationLines.indexOf(selectedLine), 1);
+      } else {
+        console.log("No star clicked"); // Debugging log
       }
     }
 
@@ -350,7 +338,11 @@ export default function Home() {
             exoplanet.position.z
           );
           textMesh.lookAt(camera.position);
-
+          if(lockOnPlanet)  {
+            textMesh.visible = false;
+          } else {
+            textMesh.visible = true;
+          }
           // Update trail positions and times
           for (let i = trailPositions.length - 3; i > 2; i -= 3) {
             trailPositions[i] = trailPositions[i - 3];
@@ -381,6 +373,7 @@ export default function Home() {
               exoplanet.position.x + 10,
               exoplanet.position.y + 10,
               exoplanet.position.z + 10
+
             );
             camera.lookAt(exoplanet.position);
           } else {
@@ -403,12 +396,12 @@ export default function Home() {
   return (
     <div>
       <Title title={"Exoplanet Interface"} />
-      <Navbar />
+      <Navbar setLockOnPlanet={setLockOnPlanet} lockOnPlanet={lockOnPlanet} />
       <QuickActions />
       <SearchBar />
-      <button onClick={() => setLockOnPlanet(!lockOnPlanet)}>
-        {lockOnPlanet ? "Unlock View" : "Lock on Planet"}
-      </button>
+      {/* <button onClick={() => setLockOnPlanet(!lockOnPlanet)}>
+        {/* {lockOnPlanet ? "Unlock View" : "Lock on Planet"}
+      </button> */}
     </div>
   );
 }
