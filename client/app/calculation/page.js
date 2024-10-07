@@ -14,7 +14,7 @@ return (
                 This{" "}
                 <a
                     className="text-blue-300"
-                    href="https://latex.artofproblemsolving.com/miscpdf/oyufjkek.pdf?t=1728197398006"
+                    href="https://docs.google.com/document/d/1WTEqxIBTPOBxeJJuXYxJGoyCgpD9G1F92U8L3W3NvFU/edit?usp=sharing"
                 >
                     documentation
                 </a>{" "}
