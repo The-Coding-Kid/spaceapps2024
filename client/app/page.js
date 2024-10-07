@@ -137,7 +137,7 @@ export default function Home() {
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.25;
-    controls.maxDistance = 250;
+    controls.maxDistance = 200;
     controls.enableZoom = true;
 
     const vertexShader = Shader.vertexShader;
@@ -179,7 +179,7 @@ export default function Home() {
     const starOutlines = [];
 
     function Generate_Star(x, y, z, B) {
-      const geometry = new THREE.SphereGeometry(20 * Math.sqrt(B), 32, 32); // Increase hitbox size
+      const geometry = new THREE.SphereGeometry(10 * Math.sqrt(B), 32, 32); // Increase hitbox size
       const material = new THREE.MeshBasicMaterial({
         color: 0xffffff,
       });
