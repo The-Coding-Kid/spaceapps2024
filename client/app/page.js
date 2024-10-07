@@ -14,7 +14,10 @@ import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPa
 import Title from "./components/Title";
 
 const N = 400;
-const rocky_colors = [0x8B4513, 0xD2B48C, 0xA9A9A9, 0xB22222, 0xFF6347, 0xADD8E6, 0x4682B4, 0xA0522D, 0xC0C0C0, 0xCD5C5C];
+const rocky_colors = [
+  0x8b4513, 0xd2b48c, 0xa9a9a9, 0xb22222, 0xff6347, 0xadd8e6, 0x4682b4,
+  0xa0522d, 0xc0c0c0, 0xcd5c5c,
+];
 
 const RA = [];
 const azimuth = [];
@@ -26,13 +29,11 @@ function color_from_gases(...args) {
 }
 
 //import these from backend
-const pl_name = "rizzler"
+const pl_name = "rizzler";
 const has_atm = false; //check if plantet is in fulldata csv (otherwise use partialdata csv)
 const R_pl = 1;
 const R_st = 0.1;
 const gases = ["H", "He", "O", "NO4", "NH4"];
-
-
 
 let COLOR = color_from_gases(gases);
 
@@ -42,13 +43,12 @@ if (has_atm) {
 } else {
   if (R_pl < 2.2) {
     //terrestrial planet
-    COLOR = rocky_colors[10*Math.floor(Math.random())]
+    COLOR = rocky_colors[10 * Math.floor(Math.random())];
   } else {
     //gas giant
-    COLOR = rocky_colors[10*Math.floor(Math.random())]
+    COLOR = rocky_colors[10 * Math.floor(Math.random())];
   }
 }
-
 
 for (let i = 0; i < N; i++) {
   abs_mag[i] = 6 * (Math.random() - 0.5);
@@ -161,7 +161,7 @@ export default function Home() {
       Generate_Star(x, y, z, brightness[i]);
     }
 
-    function Generate_exoplanet(a,clr) {
+    function Generate_exoplanet(a, clr) {
       const geometry = new THREE.SphereGeometry(R_pl, 32, 32);
       const material = new THREE.MeshBasicMaterial({
         color: clr,
@@ -172,7 +172,7 @@ export default function Home() {
       return exoplanet;
     }
 
-    const exoplanet = Generate_exoplanet(25,COLOR);
+    const exoplanet = Generate_exoplanet(25, COLOR);
 
     const composer = new EffectComposer(renderer);
     const renderPass = new RenderPass(scene, camera);
@@ -299,7 +299,7 @@ export default function Home() {
 
   return (
     <div>
-      <Title />
+      <Title title={"Exoplanet Interface"} />
       <Navbar />
       <QuickActions />
       <SearchBar />
