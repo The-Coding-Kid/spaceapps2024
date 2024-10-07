@@ -12,7 +12,8 @@ import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 import Title from "./components/Title";
-
+import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
+import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry";
 const N = 400;
 const rocky_colors = [
   0x8b4513, 0xd2b48c, 0xa9a9a9, 0xb22222, 0xff6347, 0xadd8e6, 0x4682b4,
@@ -24,12 +25,36 @@ const azimuth = [];
 let abs_mag = [];
 let distances = [];
 
-function color_from_gases(...args) {
+function color_from_gases() {
   return 0x085e53;
 }
 
+
+
+/*
+const listener = new THREE.AudioListener();
+camera.add(listener);
+
+const sound = new THREE.Audio(listener);
+const audioLoader = new THREE.AudioLoader();
+
+// Load the ambient music file
+audioLoader.load('file:///Users/ibrahim/Downloads/The%20sweet,%20sour,%20salty,%20and%20savory%20sigma.mp3', function(buffer) {
+    sound.setBuffer(buffer);
+    sound.setLoop(true);
+    sound.setVolume(0.5); // Set volume as needed
+    sound.play(); // Play the music
+});
+
+*/
+
+
+
+
+
+//NOTE: check if other planets are in the same system
 //import these from backend
-const pl_name = "rizzler";
+const pl_name = "planet";
 const has_atm = false; //check if plantet is in fulldata csv (otherwise use partialdata csv)
 const R_pl = 1;
 const R_st = 0.1;
@@ -70,10 +95,11 @@ for (let i = 0; i < N; i++) {
   brightness.push(Math.pow(10, -0.4 * abs_mag[i]) / Math.pow(distances[i], 2));
 }
 
-const R = 700;
+const R = 600;
 
 export default function Home() {
-  const [selectedStars, setSelectedStars] = useState([]);
+  const [, setSelectedStars] = useState([]);
+  const [lockOnPlanet, setLockOnPlanet] = useState(false);
 
   useEffect(() => {
     const scene = new THREE.Scene();
@@ -83,6 +109,26 @@ export default function Home() {
       0.1,
       1000
     );
+
+
+
+    const listener = new THREE.AudioListener();
+    camera.add(listener);
+    const sound = new THREE.Audio(listener);
+    const audioLoader = new THREE.AudioLoader();
+
+// Load the ambient music file
+    audioLoader.load('The sweet, sour, salty, and savory sigma.mp3', function(buffer) {
+      sound.setBuffer(buffer);
+      sound.setLoop(true);
+      sound.setVolume(0.5); // Set volume as needed
+      sound.play(); // Play the music
+    });
+
+
+
+
+
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setClearColor(0x000000);
@@ -91,7 +137,7 @@ export default function Home() {
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.25;
-    controls.maxDistance = 100;
+    controls.maxDistance = 250;
     controls.enableZoom = true;
 
     const vertexShader = Shader.vertexShader;
@@ -133,7 +179,7 @@ export default function Home() {
     const starOutlines = [];
 
     function Generate_Star(x, y, z, B) {
-      const geometry = new THREE.SphereGeometry(10 * Math.sqrt(B), 32, 32); // Increase hitbox size
+      const geometry = new THREE.SphereGeometry(20 * Math.sqrt(B), 32, 32); // Increase hitbox size
       const material = new THREE.MeshBasicMaterial({
         color: 0xffffff,
       });
@@ -150,7 +196,7 @@ export default function Home() {
       const outline = new THREE.Mesh(outlineGeometry, outlineMaterial);
       outline.position.set(x, y, z);
       outline.visible = false;
-      scene.add(outline);
+      // scene.add(outline);
       starOutlines.push(outline);
     }
 
@@ -192,7 +238,9 @@ export default function Home() {
     scene.add(trail);
 
     const maxTrailLength = 200;
+    const trailLifespan = 100; // Lifespan of each trail segment
     const trailPositions = new Float32Array(maxTrailLength * 3);
+    const trailTimes = new Float32Array(maxTrailLength).fill(trailLifespan);
     trailGeometry.setAttribute(
       "position",
       new THREE.BufferAttribute(trailPositions, 3)
@@ -206,6 +254,12 @@ export default function Home() {
       const line = new THREE.Line(geometry, lineMaterial);
       scene.add(line);
       constellationLines.push(line);
+
+      // Remove the previous line if it exists
+      if (constellationLines.length > 1) {
+        const oldLine = constellationLines.shift();
+        scene.remove(oldLine);
+      }
     }
 
     function onStarClick(event) {
@@ -251,51 +305,100 @@ export default function Home() {
     }
 
     window.addEventListener("click", onStarClick);
-
     let t = 0;
     let k = 0;
+    // Removed unused variable 'v'
 
-    const animate = function () {
-      requestAnimationFrame(animate);
+    // Load font and create text label
+    const fontLoader = new FontLoader();
+    fontLoader.load(
+      "https://threejs.org/examples/fonts/helvetiker_regular.typeface.json",
+      (font) => {
+        const textGeometry = new TextGeometry(pl_name, {
+          font: font,
+          size: 3,
+          height: 2,
+        });
+        const textMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+        scene.add(textMesh);
 
-      sun.rotation.y += 0.01;
-      sunMaterial.uniforms.time.value += 0.01;
+        const animate = function () {
+          requestAnimationFrame(animate);
 
-      var T_orb = 2;
-      var e = 0.4;
-      var a = 100;
-      var b = a * Math.sqrt(1 - Math.pow(e, 2));
-      var M = ((2 * Math.PI) / T_orb) * t;
-      k = Math.sqrt(
-        Math.pow(exoplanet.position.x - a * e, 2) +
-          Math.pow(exoplanet.position.z, 2)
-      );
-      sun.position.set(e * a, 0, 0);
-      exoplanet.position.x = a * Math.cos(M);
-      exoplanet.position.z = b * Math.sin(M);
-      exoplanet.position.y = 0;
+          sun.rotation.y += 0.01;
+          sunMaterial.uniforms.time.value += 0.01;
 
-      trailPositions.copyWithin(3, 0, (maxTrailLength - 1) * 3);
-      trailPositions.set(
-        [exoplanet.position.x, exoplanet.position.y, exoplanet.position.z],
-        0
-      );
-      trailGeometry.attributes.position.needsUpdate = true;
+          var T_orb = 2;
+          var e = 0.4;
+          var a = 100;
+          var b = a * Math.sqrt(1 - Math.pow(e, 2));
+          var M = ((2 * Math.PI) / T_orb) * t;
+          k = Math.sqrt(
+            Math.pow(exoplanet.position.x - a * e, 2) +
+              Math.pow(exoplanet.position.z, 2)
+          );
+          sun.position.set(e * a, 0, 0);
+          exoplanet.position.x = a * Math.cos(M);
+          exoplanet.position.z = b * Math.sin(M);
+          exoplanet.position.y = 0;
 
-      t += 0.25 / k;
+          // Update text label position and make it face the camera
+          textMesh.position.set(
+            exoplanet.position.x + 2,
+            exoplanet.position.y + 2,
+            exoplanet.position.z
+          );
+          textMesh.lookAt(camera.position);
 
-      controls.update();
+          // Update trail positions and times
+          for (let i = trailPositions.length - 3; i > 2; i -= 3) {
+            trailPositions[i] = trailPositions[i - 3];
+            trailPositions[i + 1] = trailPositions[i - 2];
+            trailPositions[i + 2] = trailPositions[i - 1];
+            trailTimes[i / 3] = trailTimes[i / 3 - 1];
+          }
+          trailPositions[0] = exoplanet.position.x;
+          trailPositions[1] = exoplanet.position.y;
+          trailPositions[2] = exoplanet.position.z;
+          trailTimes[0] = trailLifespan;
 
-      composer.render();
-    };
+          // Reduce trail segment lifespans
+          for (let i = 0; i < trailTimes.length; i++) {
+            trailTimes[i] -= 1;
+            if (trailTimes[i] <= 0) {
+              trailPositions[i * 3] = trailPositions[i * 3 + 1] = trailPositions[i * 3 + 2] = NaN;
+            }
+          }
 
-    animate();
+          trailGeometry.attributes.position.needsUpdate = true;
+
+          t += 0.25 / k;
+
+          // Update camera position based on the selected view
+          if (lockOnPlanet) {
+            camera.position.set(
+              exoplanet.position.x + 10,
+              exoplanet.position.y + 10,
+              exoplanet.position.z + 10
+            );
+            camera.lookAt(exoplanet.position);
+          } else {
+            controls.update();
+          }
+
+          composer.render();
+        };
+
+        animate();
+      }
+    );
 
     return () => {
       document.body.removeChild(renderer.domElement);
       window.removeEventListener("click", onStarClick);
     };
-  }, []);
+  }, [lockOnPlanet]);
 
   return (
     <div>
@@ -303,6 +406,9 @@ export default function Home() {
       <Navbar />
       <QuickActions />
       <SearchBar />
+      <button onClick={() => setLockOnPlanet(!lockOnPlanet)}>
+        {lockOnPlanet ? "Unlock View" : "Lock on Planet"}
+      </button>
     </div>
   );
 }
