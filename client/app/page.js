@@ -16,7 +16,6 @@ import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry";
 import Rocky from "./components/Rocky";
 
-const N = 400;
 const rocky_colors = [0x8b4513, 0xd2b48c, 0xa9a9a9, 0xb22222, 0xff6347, 0xadd8e6, 0x4682b4, 0xa0522d, 0xc0c0c0, 0xcd5c5c];
 const gas_colors = [0xadd8e6, 0x87feca, 0x4f82c4, 0x1f90ff, 0x509ea0,0x80f0c0, 0x6a5acd, 0xe6e6fa, 0xf0f8ff, 0x0fbfa];
 
@@ -28,24 +27,95 @@ const NH4_color = [2, 6, 5, 11, 15, 15]
 const CO2_color = [8, 0, 7, 6, 6, 1]
 
 function getStarValues() {
-  fetch(`localhost:5001/`)
-    .then(d => {
-      console.log(d.json())
-      return d;
+  console.log("HELLO WORLD");
+  
+  return fetch(`http://localhost:3500/`)
+    .then(response => response.json())  // Convert response to JSON
+    .then(data => {
+      console.log(data);  // Log the data from the server
+      Object.keys(data)
+      return { x: data.x, y: data.y, z: data.z, a: data.a, d: data.d};
+      // Access x, y, z values from data
     })
-    .then(y => {
-      console.log(y)
-      return {x: y["x"], y: y["y"], y: d["z"]}
-    })
-    return {x: 0, y: 0, z: 0}
+    .catch(error => {
+      console.error("Error fetching data:", error);
+      return { x: 0, y: 0, z: 0, a: 0, d: 0};  // Return default values in case of error
+    });
 }
 
-//R*x/distance, R*y/distance, R*z/distance
-const X = [];
-const Y = [];
-const Z = [];
+let X = [];
+let Y = [];
+let Z = [];
 let abs_mag = [];
 let distances = [];
+
+const { x, y, z, a: mag, d} = await getStarValues()
+
+X = x;
+Y = y;
+Z = z;
+abs_mag = mag;
+distances = d;
+
+for (let i=0;i<X.length;i++) {
+  if ((Math.log(abs_mag[i]) > 0) || abs_mag[i]==Infinity) {
+    X.splice(i, 1);
+    Y.splice(i, 1);
+    Z.splice(i, 1);
+    abs_mag.pop(i, 1);
+    distances.splice(i, 1);
+  }
+}
+
+console.log("X", X)
+console.log("Y", Y)
+console.log("Z", Z)
+console.log("A", abs_mag)
+console.log("D", distances)
+
+
+let N = X.length;
+console.log(typeof N)
+console.log("VALUE OF N", N)
+
+// function getStarValues() {
+//   console.log("HELLO WORLD");
+//   fetch(`http://localhost:3500/`)
+//   .then(d => {
+//     console.log(d.json())
+//     return d;
+//   })
+//   .then(a => {
+//     console.log(a)
+//     return {x: a["x"], y: a["y"], y: a["z"]}
+//   })
+//   return {x: 0, y: 0, z: 0}
+// }
+
+
+
+
+//R*x/distance, R*y/distance, R*z/distance
+// const N = 400;
+
+// for (let i = 0; i < N; i++) {
+//   X.push(200*(Math.random()-0.5));
+// }
+// for (let i = 0; i < N; i++) {
+//   Y.push(200*(Math.random()-0.5));
+// }
+// for (let i = 0; i < N; i++) {
+//   Z.push(200*(Math.random()-0.5));
+// }
+// for (let i = 0; i < N; i++) {
+//   abs_mag.push(5*(Math.random()-0.25));
+// }
+// for (let i = 0; i < N; i++) {
+//   distances.push(Math.sqrt(Math.pow(X[i],2)+Math.pow(Y[i],2)+Math.pow(Z[i],2)));
+// }
+
+
+
 
 function color_from_gases(GASES) {
   const composite_color = [0,0,0,0,0,0]
@@ -114,30 +184,16 @@ if (has_atm) {
   }
 }
 
-for (let i = 0; i < N; i++) {
-  X.push(200*(Math.random()-0.5));
-}
-for (let i = 0; i < N; i++) {
-  Y.push(200*(Math.random()-0.5));
-}
-for (let i = 0; i < N; i++) {
-  Z.push(200*(Math.random()-0.5));
-}
-for (let i = 0; i < N; i++) {
-  abs_mag.push(5*(Math.random()-0.25));
-}
-for (let i = 0; i < N; i++) {
-  distances.push(Math.sqrt(Math.pow(X[i],2)+Math.pow(Y[i],2)+Math.pow(Z[i],2)));
-}
-
 //apparent magnitudes
 let brightness = [];
 
 for (let i = 0; i < N; i++) {
+  //console.log(abs_mag[i])
   brightness.push(Math.pow(10, -0.4 * abs_mag[i]) / Math.pow(distances[i], 2));
 }
 
-const R = 600;
+
+const R = 500;
 
 
 const scene = new THREE.Scene()
@@ -356,13 +412,20 @@ export default function Home() {
   //let [toggled] = useState(false);
   
   const [surfaceView, setSurfaceView] = useState(false);
+  // const [star, setStar] = useState({
+  //   x: [],
+  //   y: [],
+  //   z: [],
+  //   a: [],
+  //   d: []
+  // })
 
-  useEffect(() => {
-    console.log(getStarValues())
+
+  useEffect(() => {;
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(
       75,
-      window.innerWidth / window.innerHeight,
+      global.window.innerWidth / global.window.innerHeight,
       0.1,
       1000
     );
@@ -382,7 +445,7 @@ export default function Home() {
     });
 
     const renderer = new THREE.WebGLRenderer();
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize(global.window.innerWidth, global.window.innerHeight);
     renderer.setClearColor(0x000000);
     document.body.appendChild(renderer.domElement);
 
@@ -401,7 +464,7 @@ export default function Home() {
     const starData = {
       temperatureEstimate: {
         value: {
-          quantity: 4500.0,
+          quantity: T_st,
         },
       },
     };
@@ -435,11 +498,14 @@ export default function Home() {
     const hitboxes = [];
 
     function Generate_Star(x, y, z, B) {
-      const geometry = new THREE.SphereGeometry(60 * Math.sqrt(B), 32, 32); // Increase hitbox size
+      console.log("BRIGHTNESS", B)
+      const r = 3*Math.pow(B,0.04);
+      const geometry = new THREE.SphereGeometry(r, 32, 32);
       const material = new THREE.MeshBasicMaterial({
         color: 0xffffff,
       });
       const star = new THREE.Mesh(geometry, material);
+      console.log(x, y, z)
       star.position.set(x, y, z);
       scene.add(star);
 
@@ -454,7 +520,7 @@ export default function Home() {
       scene.add(hitbox);
       hitboxes.push(hitbox);
 
-      const outlineGeometry = new THREE.SphereGeometry(10, 32, 32);
+      const outlineGeometry = new THREE.SphereGeometry(r, 32, 32);
       const outlineMaterial = new THREE.MeshBasicMaterial({
         color: 0xffaa00,
         side: THREE.BackSide,
@@ -467,10 +533,11 @@ export default function Home() {
     }
 
     for (let i = 0; i < N; i++) {
-      const x = R * X[i]/distances[i];
-      const y = R * Y[i]/distances[i];
-      const z = R * Z[i]/distances[i];
-      Generate_Star(x, y, z, brightness[i]);
+      const dis = Math.sqrt(X[i]*X[i]+Y[i]*Y[i]+Z[i]*Z[i],0.5);
+      const x = R * X[i]/dis;
+      const y = R * Y[i]/dis;
+      const z = R * Z[i]/dis;
+      Generate_Star(x,y,z, brightness[i]);
     }
 
     function Generate_exoplanet(a, clr) {
@@ -509,7 +576,7 @@ export default function Home() {
     composer.addPass(renderPass);
 
     const bloomPass = new UnrealBloomPass(
-      new THREE.Vector2(window.innerWidth, window.innerHeight),
+      new THREE.Vector2(global.window.innerWidth, global.window.innerHeight),
       3,
       0.4,
       0.85
@@ -542,8 +609,8 @@ export default function Home() {
 
     function onStarClick(event) {
       const mouse = new THREE.Vector2();
-      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+      mouse.x = (event.clientX / global.window.innerWidth) * 2 - 1;
+      mouse.y = -(event.clientY / global.window.innerHeight) * 2 + 1;
 
       const raycaster = new THREE.Raycaster();
       raycaster.setFromCamera(mouse, camera);
@@ -577,7 +644,7 @@ export default function Home() {
       }
     }
 
-    window.addEventListener("click", onStarClick);
+    global.window.addEventListener("click", onStarClick);
     let t = 0;
     let k = 0;
     // Removed unused variable 'v'
@@ -709,7 +776,7 @@ export default function Home() {
 
     return () => {
       document.body.removeChild(renderer.domElement);
-      window.removeEventListener("click", onStarClick);
+      global.window.removeEventListener("click", onStarClick);
     };
   }, [lockOnPlanet, surfaceView]);
 

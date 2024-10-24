@@ -41,11 +41,11 @@ def get_chunk(chunk_index=0):
     # Fetch the precomputed chunk from RAM
     chunk = precomputed_chunks[chunk_index]
     result = {
-        "x": chunk[:, 0].tolist(),
-        "y": chunk[:, 1].tolist(),
-        "z": chunk[:, 2].tolist(),
-        "a": chunk[:, 3].tolist(),
-        "d": chunk[:, 4].tolist(),
+        "x": chunk[:, 0].tolist()[0:10000],
+        "y": chunk[:, 1].tolist()[0:10000],
+        "z": chunk[:, 2].tolist()[0:10000],
+        "a": chunk[:, 3].tolist()[0:10000],
+        "d": chunk[:, 4].tolist()[0:10000],
     }
     
     # Cache the result in memory for future lookups
@@ -76,4 +76,4 @@ def get_default_chunk():
 
 if __name__ == "__main__":
     # Run Flask with threading for concurrency
-    app.run(debug=False, threaded=True)
+    app.run(debug=False, threaded=True, port=3500)
