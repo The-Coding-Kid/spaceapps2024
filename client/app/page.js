@@ -154,7 +154,7 @@ function color_from_gases(GASES) {
   //return 0x085e53;
 }
 
-var T_orb = 2;
+var T_orb = 1.5;
 var e = 0.4;
 var a = 100;
 
@@ -166,7 +166,7 @@ const pl_name = "Kepler-44b";
 const st_name = "Kepler-44";
 const has_atm = false; //check if plantet is in fulldata csv (otherwise use partialdata csv)
 const R_pl = 2.3;
-const R_st = 0.1;
+const R_st = 0.05;
 const T_st = 4800;
 const gases = ["H", "He", "O", "NO4", "NH4"]; //H adds dark blue, He adds light pink & yellow, O adds light blue, NO4 adds orange, NH4 adds indigo
 
@@ -501,7 +501,7 @@ export default function Home() {
     function Generate_Star(x, y, z, B) {
       //console.log("BRIGHTNESS", B)
       let r = 3*Math.pow(B,0.04);
-      if (!(r<4)) {r = 0.2}
+      if (!(r<2)) {r = 0.8}
       const geometry = new THREE.SphereGeometry(r, 32, 32);
       const material = new THREE.MeshBasicMaterial({
         color: 0xffffff,
@@ -590,8 +590,8 @@ export default function Home() {
     const trail = new THREE.Line(trailGeometry, trailMaterial);
     scene.add(trail);
 
-    const maxTrailLength = 200;
-    const trailLifespan = 100; // Lifespan of each trail segment
+    const maxTrailLength = 400;
+    const trailLifespan = 200; // Lifespan of each trail segment
     const trailPositions = new Float32Array(maxTrailLength * 3);
     const trailTimes = new Float32Array(maxTrailLength).fill(trailLifespan);
     trailGeometry.setAttribute(
@@ -813,3 +813,5 @@ export default function Home() {
       </div></>
   );
 }
+
+//credits: Jahaan S, Rohan F, Ibrahim N
