@@ -41,11 +41,11 @@ def get_chunk(chunk_index=0):
     # Fetch the precomputed chunk from RAM
     chunk = precomputed_chunks[chunk_index]
     result = {
-        "x": chunk[:, 0].tolist()[0:10000],
-        "y": chunk[:, 1].tolist()[0:10000],
-        "z": chunk[:, 2].tolist()[0:10000],
-        "a": chunk[:, 3].tolist()[0:10000],
-        "d": chunk[:, 4].tolist()[0:10000],
+        "x": chunk[:, 0].tolist()[0:7500],
+        "y": chunk[:, 1].tolist()[0:7500],
+        "z": chunk[:, 2].tolist()[0:7500],
+        "a": chunk[:, 3].tolist()[0:7500],
+        "d": chunk[:, 4].tolist()[0:7500],
     }
     
     # Cache the result in memory for future lookups

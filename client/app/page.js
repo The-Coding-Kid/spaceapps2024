@@ -57,21 +57,22 @@ Z = z;
 abs_mag = mag;
 distances = d;
 
-for (let i=0;i<X.length;i++) {
-  if ((Math.log(abs_mag[i]) > 0) || abs_mag[i]==Infinity) {
-    X.splice(i, 1);
-    Y.splice(i, 1);
-    Z.splice(i, 1);
-    abs_mag.pop(i, 1);
-    distances.splice(i, 1);
-  }
-}
+// for (let i=0;i<X.length;i++) {
+//   if (!(Math.log(abs_mag[i]) < 0) || X[i]==0) {
+//     console.log(i, ": ", X[i], ", ", Y[i], ", ", Z[i], " | magnitude: ", abs_mag[i], "  | distance: ", distances[i]);
+//     X.splice(i, 1);
+//     Y.splice(i, 1);
+//     Z.splice(i, 1);
+//     abs_mag.splice(i, 1);
+//     distances.splice(i, 1);
+//   }
+// }
 
-console.log("X", X)
-console.log("Y", Y)
-console.log("Z", Z)
-console.log("A", abs_mag)
-console.log("D", distances)
+// console.log("X", X)
+// console.log("Y", Y)
+// console.log("Z", Z)
+// console.log("A", abs_mag)
+// console.log("D", distances)
 
 
 let N = X.length;
@@ -498,14 +499,15 @@ export default function Home() {
     const hitboxes = [];
 
     function Generate_Star(x, y, z, B) {
-      console.log("BRIGHTNESS", B)
-      const r = 3*Math.pow(B,0.04);
+      //console.log("BRIGHTNESS", B)
+      let r = 3*Math.pow(B,0.04);
+      if (!(r<4)) {r = 0.2}
       const geometry = new THREE.SphereGeometry(r, 32, 32);
       const material = new THREE.MeshBasicMaterial({
         color: 0xffffff,
       });
       const star = new THREE.Mesh(geometry, material);
-      console.log(x, y, z)
+      //console.log(x, y, z)
       star.position.set(x, y, z);
       scene.add(star);
 
@@ -798,7 +800,8 @@ export default function Home() {
         Exoplanet Radius (Earths): {R_pl}  <br></br>
         Host Star Radius (Suns): {R_st}  <br></br>
         Semimajor Axis: {a} AU  <br></br>
-        Distance from Earth (parsecs): 2250
+        Distance from Earth (parsecs): 2250 <br></br>
+        (Number of stars loaded: {N})
         </p>
         <button
           //style={{marginLeft: 50 + 'em', marginRight: -4 + 'em', marginTop: 15 + 'em'}}
